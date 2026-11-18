@@ -95,10 +95,10 @@ describe('TypesenseEngine', () => {
   test('adds only missing fields to an existing collection; a create race is fine', async () => {
     let gets = 0
     const { fetch, calls } = stubFetch((method) => {
-      if (method === 'GET')
-        return (gets += 1) === 1
-          ? json(404, {})
-          : json(200, { fields: [{ name: 'title' }, { other: 1 }] })
+      if (method === 'GET') {
+        gets += 1
+        return gets === 1 ? json(404, {}) : json(200, { fields: [{ name: 'title' }, { other: 1 }] })
+      }
       if (method === 'POST') return json(409, { message: 'already exists' })
       return json(200, {})
     })
@@ -244,7 +244,7 @@ describe('MeilisearchEngine', () => {
     let uid = 0
     const { fetch, calls } = stubFetch((method, url) => {
       const route = `${method} ${url.pathname}`
-      if (fail !== undefined && fail.route.test(route)) return fail.reply
+      if (fail?.route.test(route)) return fail.reply
       if (url.pathname.startsWith('/tasks/'))
         return json(200, {
           uid: Number(url.pathname.split('/')[2]),

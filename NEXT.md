@@ -1,49 +1,52 @@
 # NEXT: `@strutvane/search` on `v2/search`
 
-Stopped 2026-11-18 by the coordinator (usage limit). Nothing pushed.
+Version 0.2.0-next.0 (changeset, pre `next`). Depends on the published `@strutvane/framework`
+0.2.0-next.1 (dev) / `^0.2.0-next.0` (peer). Nothing pushed by this session.
 
-## Done (committed)
-- Scaffold (synced tooling files copied from tooling canonical; this repo is **not yet a target in
-  tooling's manifest.json**, so `sync --check` doesn't cover it).
-- Source: `Searchable()` mixin (overrides `save`/`forceDelete`), index definitions validated
-  against the schema (hidden/secret columns refused), `SearchBuilder` (filters, sort, paginate,
-  `query()`, `for(user, policy)`), engines database/memory/Meilisearch (official client, optional
-  peer)/Typesense (own fetch client), after-commit sync (`searchTransaction`,
-  `withoutSyncingToSearch`, `IndexDispatcher` for a future queue), config validation, provider,
-  installer, `search:import` / `search:flush` / `install:search` commands.
-- Tests (agent-reported, not re-run by the coordinator): sync 11, search 22, tenancy + definition
-  60, all green on Windows / Node 24.21 against framework `fix/release-0.2` f658430 (tarball).
+## Done
+- `Searchable()` mixin (overrides `save`/`forceDelete`), validated index definitions (hidden and
+  secret columns refused), `SearchBuilder` (where/whereNot/whereIn/filter, orderBy, query(),
+  for(user, policy), get/paginate/keys), engines database (default) / memory / Meilisearch
+  (official client, optional peer) / Typesense (built-in fetch client), after-commit sync
+  (`searchTransaction`, `withoutSyncingToSearch`, `IndexDispatcher` seam for queues), config
+  validation, `SearchServiceProvider`, installer, `search:import` / `search:flush` /
+  `install:search`, README, CHANGELOG, RELEASE-READINESS rows.
+- Tests: unit and behaviour suites on both the memory and database engines; tenancy attack
+  tests; hidden-column leakage; fast-check fuzzing of the filter compilers; manager/config;
+  provider in a real Application; installer (idempotent, reversible); commands (path safety);
+  type-level tests; engine HTTP stubs; the conformance + injection + end-to-end suite on real
+  Meilisearch v1.57.0 and Typesense 30.2 containers (uniquely named, removed afterwards; skipped
+  with the reason without Docker, or with `SEARCH_SKIP_SERVERS=1`).
+- Real-server runs found and fixed: both servers dropped words from multi-word queries
+  (Meilisearch `matchingStrategy: 'all'`; Typesense `drop_tokens_threshold=0`, without
+  `exhaustive_search`, which ignores it).
 
-## Isolation model
+## Isolation model (decided here; for the project lead to confirm)
 One shared index per model; tenant models store `__tenant`; the builder adds
 `__tenant = currentTenant()` (callers can't name it); no tenant → `tenant_required`; every hit is
-re-read through the ORM tenant scope (tested with an engine that ignores filters).
+re-read through the ORM tenant scope (tested with an engine that ignores filters). Chosen over
+index-per-tenant because it scales to many tenants and keeps one schema per model; the database
+re-read is the second lock.
 
-## Next (in order)
-1. Tests still to write: `filters.ts` compilers + fast-check fuzz (Meilisearch quoting, Typesense
-   backtick refusal); config/createEngine; manager (lazy engine retry, ready() retry, report vs
-   throw, process); provider (boot an Application with `config/search.ts`); installer (patch
-   functions, runInstaller, idempotent, uninstall); commands (loadModel path safety, import/flush
-   with a fake app loader); type-level tests (`*.test-d.ts`: unknown column fails to compile).
-2. Real-server suites in `test/servers/`: Meilisearch `getmeili/meilisearch:v1.57.0` and Typesense
-   `typesense/typesense:30.2` (images pulled), uniquely named containers removed afterwards, skip
-   with a reason when Docker can't run Linux containers; conformance + filter-injection +
-   cross-tenant tests. Check Typesense accepts the `__tenant` field name.
-3. README (Scout-style), RELEASE-READINESS rows, changeset (pre `next`, minor) →
-   `changeset version` → 0.2.0-next.0 (package.json is 0.1.0 until then).
-4. Full gate (`npm run ci`) 3× with timeouts; coverage 90/90/85/90.
-
-## How to run
-`npm install --no-save --ignore-scripts <framework-0.2.0-next.0.tgz>` (pack a worktree of
-framework `fix/release-0.2`); `package-lock.json` has no framework entry until it is on npm, so
-`npm ci` fails with ETARGET until then. Typecheck: `tsc --noEmit && tsc --noEmit -p test/tsconfig.json`.
+## Next
+1. Coordinator: re-run the gate (`npm ci && npm run ci`) 3×; R2 CI matrix (symlink test runs on
+   Linux/macOS only; it is skipped on Windows without developer mode).
+2. R3: written threat model and a `security-reviewer` pass. R5: publint + attw (CI job).
+   R6: installer e2e on a real skeleton app. R7: docs site page.
+3. Tooling: add `search` as a library target in strutvane-tooling's manifest.json (the synced
+   files here were copied from canonical by hand).
+4. Hub catalogue entry `search`: env keys are `SEARCH_DRIVER`, `MEILISEARCH_HOST`/`KEY`,
+   `TYPESENSE_*` (not `SEARCH_HOST`/`SEARCH_API_KEY`); frameworkRange `^0.2.0-next.0`, version
+   0.2.0-next.0, commands also include `install:search`.
+5. Later: queued indexing (when framework queues land), custom documents (`toSearchableArray`),
+   policy lookup by model name, hybrid/vector search.
 
 ## Framework gaps (for the project lead)
 - No model events/observers → search overrides `save()`/`forceDelete()` in a mixin.
-- No `Connection.afterCommit()` → foreign transactions index before commit (warned once per model).
-- `PolicyRegistryToken` / `allows()` not exported → `.for(user)` needs a policy passed or set in options.
-- No public tenant column / tenancy mode accessor → tenant models detected by `t.tenant()` flag.
-- No `install:<name>` built-in → this package contributes `install:search` itself.
-- No devkit helper for `bootstrap/providers.ts` / `config/index.ts` edits (copied pattern from log-viewer).
-- Catalogue entry lists env `SEARCH_HOST`/`SEARCH_API_KEY` and `frameworkRange ^1.0`; the package
-  uses `SEARCH_DRIVER`, `MEILISEARCH_HOST`/`KEY`, `TYPESENSE_*` and `^0.2.0-next.0`.
+- No `Connection.afterCommit()` → a foreign transaction indexes before its commit (warned once).
+- `PolicyRegistryToken` / `allows()` not exported → `.for(user)` needs a policy passed or set.
+- No public tenancy accessor (tenant column / mode) → tenant models detected by the `t.tenant()` flag.
+- No built-in `install:<name>`; no devkit helper for `bootstrap/providers.ts` / `config/index.ts`
+  edits (the log-viewer and search each carry a copy).
+- `isolatedDeclarations` forbids `class Post extends Searchable(...)` in the package's own tests,
+  so tests type-check through `test/tsconfig.json` (as an app compiles them).
