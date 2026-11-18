@@ -21,6 +21,11 @@ Version 0.2.0-next.0 (changeset, pre `next`). Depends on the published `@strutva
   (Meilisearch `matchingStrategy: 'all'`; Typesense `drop_tokens_threshold=0`, without
   `exhaustive_search`, which ignores it).
 
+## Gate (agent-reported, 2026-11-18, Windows / Node 24.21, after a clean npm ci)
+`npm run ci` 3× in a row, exit 0 each time: 212 passed, 1 skipped (the symlink test), including
+the real-server suites; coverage 98.29 / 92.58 / 97.76 / 98.9 (statements / branches /
+functions / lines). No test containers left behind.
+
 ## Isolation model (decided here; for the project lead to confirm)
 One shared index per model; tenant models store `__tenant`; the builder adds
 `__tenant = currentTenant()` (callers can't name it); no tenant → `tenant_required`; every hit is
