@@ -23,7 +23,6 @@ import type {
   SearchEngine,
 } from '../contract.ts'
 import { documentKey } from '../definition.ts'
-import { words } from './memory.ts'
 
 /** The ORM builder methods this engine calls (the framework's `Builder` has all of them). */
 export interface OrmQuery {
@@ -78,7 +77,9 @@ export class DatabaseEngine implements SearchEngine {
     const builder = ormQuery(index)
     const columns = index.fields.filter((field) => field.searchable).map((field) => field.name)
     // One literal "contains" group per word: every word must appear in some searchable column.
-    for (const word of new Set(words(query.text))) builder.search(word, columns)
+    // Words keep their accents: the ORM's search folds case, and SQL can't fold accents portably.
+    for (const word of new Set(query.text.match(/[\p{L}\p{N}]+/gu) ?? []))
+      builder.search(word, columns)
     for (const condition of query.filters) {
       // The ORM scopes every query to the active tenant itself (fail closed without one).
       if (condition.field === index.tenantField) continue
