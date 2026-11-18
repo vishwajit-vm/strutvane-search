@@ -109,6 +109,8 @@ export class MeilisearchEngine implements SearchEngine {
         limit: query.limit,
         offset: query.offset,
         attributesToRetrieve: ['id'],
+        // Every word must match, as on every other engine (Meilisearch's default drops words).
+        matchingStrategy: 'all',
         ...(filter === undefined ? {} : { filter }),
         ...(sort.length === 0 ? {} : { sort }),
       })

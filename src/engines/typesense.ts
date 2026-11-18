@@ -163,8 +163,9 @@ export class TypesenseEngine implements SearchEngine {
       include_fields: 'id',
       limit: String(query.limit),
       offset: String(query.offset),
-      // Exhaustive counts: `found` is exact, and pagination totals don't drift.
-      exhaustive_search: 'true',
+      // Every word must match, as on every other engine (Typesense drops words when few hits). Not combined with
+      // exhaustive_search, which ignores this threshold.
+      drop_tokens_threshold: '0',
     })
     const filter = typesenseFilter(query.filters)
     if (filter !== undefined) params.set('filter_by', filter)
