@@ -1,0 +1,9 @@
+{
+  // The tests declare app-style models (`class Post extends Searchable(Model('posts'), …)`), which
+  // isolatedDeclarations forbids (TS9021). Apps don't use that flag (it only matters for emitting
+  // a library's declarations), so the tests are checked exactly as an app compiles them. Part of
+  // the gate: `npm run typecheck` / `npm run ci` run `tsc -p test/tsconfig.json` after the root one.
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "isolatedDeclarations": false },
+  "include": [".", "../src"]
+}

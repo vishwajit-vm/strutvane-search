@@ -10,6 +10,8 @@ export default mergeConfig(
   defineConfig({
     test: {
       testTimeout: 30_000,
+      // Type-level tests use app-style models too (see test/tsconfig.json).
+      typecheck: { tsconfig: './test/tsconfig.json' },
       hookTimeout: 180_000,
     },
   }),
