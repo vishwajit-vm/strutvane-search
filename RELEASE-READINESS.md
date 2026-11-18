@@ -1,4 +1,4 @@
-# Release readiness
+ not checked | Logs only through the framework LoggerToken (no document contents); no health check | 2026-11-18 || 0.2.0-next.0 via changeset (pre next); not staged | 2026-11-18 || README.md; docs site page not written | 2026-11-18 || Installer idempotent and reversible on a skeleton-shaped app (test/installer.test.ts); no installer e2e on a real skeleton app | 2026-11-18 || `check-package.mjs` and `check-deps.mjs` run locally; publint/attw not run | 2026-11-18 || Failure tests: engine creation/set-up retry, sync failures after commit (report/throw), timeouts and unreachable servers (test/manager.test.ts, test/engines.test.ts, test/sync.test.ts). No soak test | 2026-11-18 || Attack-style tests: test/tenancy.test.ts, test/definition.test.ts, test/filters.test.ts (fast-check), test/servers/engines.test.ts (injection on real servers), test/commands.test.ts (path safety). No written threat model or security-reviewer pass yet | 2026-11-18 || Windows / Node 24.21 only, gate 3x by the agent (agent-reported, see NEXT.md); CI matrix not run yet | 2026-11-18 |agent-reported pass | `npm run ci` (biome, both tsc projects), `check-code-rules.mjs` clean; TSDoc on every export | 2026-11-18 |# Release readiness
 
 <!--
   Created once by strutvane-tooling (canonical/RELEASE-READINESS.md). This repo owns this file:
@@ -11,7 +11,7 @@
   checks before a gate is accepted; the project lead approves the staged release.
 -->
 
-Package: (name) · Version: (version) · Last reviewed: (YYYY-MM-DD)
+Package: @strutvane/search · Version: 0.2.0-next.0 · Last reviewed: 2026-11-18
 
 | Gate | What must be true (summary; docs/19 is the source) | Checked by | Status | Evidence | Date |
 |---|---|---|---|---|---|

@@ -1,6 +1,6 @@
 {
   "name": "@strutvane/search",
-  "version": "0.1.0",
+  "version": "0.2.0-next.0",
   "description": "Full-text search for Strutvane models, like Laravel Scout: a Searchable model opt-in, Meilisearch and Typesense engines plus a database engine, after-commit indexing, tenant-isolated and policy-safe results, and search:import / search:flush commands.",
   "keywords": [
     "strutvane",
