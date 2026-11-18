@@ -154,3 +154,43 @@ describe('transactions', () => {
     expect(String(warn.mock.calls[0]?.[0])).toContain('searchTransaction')
   })
 })
+
+describe('model statics and sync failures', () => {
+  test('makeAllSearchable and removeAllFromSearch', async () => {
+    await withoutSyncingToSearch(async () => {
+      await create('One')
+      await create('never index me')
+    })
+    expect(await Post.makeAllSearchable()).toEqual({ indexed: 1, skipped: 1, applicable: true })
+    expect(engine.size(posts)).toBe(1)
+    await Post.removeAllFromSearch()
+    expect(engine.size(posts)).toBe(0)
+  })
+
+  test('an engine that cannot be created fails the save only with onSyncError "throw"', async () => {
+    const error = vi.fn()
+    useSearch(
+      new SearchManager({
+        engine: () => Promise.reject(new Error('meilisearch is not installed')),
+        logger: { warn: vi.fn(), error } as never,
+      }),
+    )
+    const saved = await create('Saved anyway')
+    expect(saved.isPersisted()).toBe(true)
+    expect(String(JSON.stringify(error.mock.calls[0]))).toContain('meilisearch is not installed')
+    useSearch(
+      new SearchManager({
+        engine: () => Promise.reject(new Error('down')),
+        onSyncError: 'throw',
+      }),
+    )
+    await expect(create('Throws after the commit')).rejects.toThrow('down')
+    expect(await Post.query().count()).toBe(2)
+  })
+
+  test('a searchTransaction with no search set up just commits', async () => {
+    useSearch(undefined)
+    await searchTransaction(() => create('No manager'))
+    expect(await Post.query().count()).toBe(1)
+  })
+})
