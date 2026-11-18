@@ -1,0 +1,124 @@
+{
+  "name": "@strutvane/search",
+  "version": "0.1.0",
+  "description": "Full-text search for Strutvane models, like Laravel Scout: a Searchable model opt-in, Meilisearch and Typesense engines plus a database engine, after-commit indexing, tenant-isolated and policy-safe results, and search:import / search:flush commands.",
+  "keywords": [
+    "strutvane",
+    "typescript",
+    "search",
+    "full-text-search",
+    "meilisearch",
+    "typesense",
+    "scout",
+    "multi-tenancy"
+  ],
+  "homepage": "https://github.com/vishwajit-vm/strutvane-search#readme",
+  "bugs": {
+    "url": "https://github.com/vishwajit-vm/strutvane-search/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vishwajit-vm/strutvane-search.git"
+  },
+  "license": "MIT",
+  "author": "The Strutvane Authors",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./meilisearch": {
+      "types": "./dist/meilisearch.d.mts",
+      "default": "./dist/meilisearch.mjs"
+    },
+    "./typesense": {
+      "types": "./dist/typesense.d.mts",
+      "default": "./dist/typesense.mjs"
+    },
+    "./provider": {
+      "types": "./dist/provider.d.mts",
+      "default": "./dist/provider.mjs"
+    },
+    "./commands": {
+      "types": "./dist/commands.d.mts",
+      "default": "./dist/commands.mjs"
+    },
+    "./installer": {
+      "types": "./dist/installer.d.mts",
+      "default": "./dist/installer.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=24.3"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11.19.0",
+      "onFail": "error"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "tsdown",
+    "ci": "biome check . && tsc --noEmit && vitest run --coverage && tsdown",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
+    "test:perf": "vitest run --config vitest.perf.config.ts"
+  },
+  "peerDependencies": {
+    "@strutvane/framework": "^0.2.0-next.0",
+    "meilisearch": "^0.63.0"
+  },
+  "peerDependenciesMeta": {
+    "meilisearch": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.7",
+    "@changesets/cli": "3.0.3",
+    "@strutvane/framework": "0.2.0-next.0",
+    "@types/node": "24.19.2",
+    "@vitest/coverage-v8": "5.1.0",
+    "fast-check": "4.10.2",
+    "meilisearch": "0.63.0",
+    "tsdown": "0.23.7",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  },
+  "allowScripts": {},
+  "strutvane": {
+    "id": "search",
+    "name": "Search",
+    "description": "Meilisearch or Typesense search across your models.",
+    "category": "data",
+    "tags": [
+      "full-text",
+      "meilisearch",
+      "typesense"
+    ],
+    "compat": "^0.2.0-next.0",
+    "commands": "./dist/commands.mjs",
+    "installer": "./dist/installer.mjs",
+    "docs": "https://github.com/vishwajit-vm/strutvane-search#readme"
+  }
+}
